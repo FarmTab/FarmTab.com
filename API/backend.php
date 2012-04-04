@@ -80,19 +80,18 @@ function attempt_logout() {
 
 function register_user($name, $email, $pin, $farmId) {
 	utils::checkLogin();
+	validate::register_user($name, $email, $pin, $farmId);
 
 	$db = new mysql();
-	
-	if ($farmId != $_SESSION['farmId'])
-		failure("can't register users to farms you don't own.");
 
 	$salt = utils::generateSalt();
 	$cryptedPin = utils::makePassword($pin, $salt);
 	
 	$userId = $db->insert('user', array(
+			'name'  => $name,
 			'email' => $email,
-			'pin' => $cryptedPin,
-			'salt' => $salt
+			'pin'   => $cryptedPin,
+			'salt'  => $salt
 	)) or failure('could not register user');
 	
 	setup_xtab($userId, $farmId, $db);
@@ -128,6 +127,7 @@ function setup_xtab($userId, $farmId, $db) {
 
 function link_user($userId, $farmId) {
 	utils::checkLogin();
+	validate::link_user();
 	
 	if ($farmId !== $_SESSION['farmId'])
 		failure("can't link users to farms you don't own.");
@@ -162,7 +162,7 @@ function get_users($farmId) {
 	return $response;
 }
 
-function get_balance($userId) {
+function get_balance($userId, $farmId) {
 	
 	utils::checkLogin();
 	
@@ -178,22 +178,25 @@ function get_balance($userId) {
 }
 
 
-function process_transaction($userId, $transaction, $token) {
+function process_transaction($userId, $transaction_json, $token) {
 	
 	utils::checkLogin();
+	validate::process_transaction($userId, $transaction_json, $token);
 	utils::checkToken($token);
+	
+	$transaction = json_decode($transaction_json);
+	$farmId = $transaction['farmId'];
 		
 	$db = new mysql();
 	
-	$currentBal = $db->get('tab', 'balance', "user_id='$userId' AND farm_id='$farmId'")
-						or failure('could not find user balance');
+	$b = get_balance($userId, $farmId);
+	$currentBal = $b['data']['balance'];
 	
 	$newBal = $currentBal - $transaction['amount'];
 	
 	if ($newBal < 0)
 		failure('Balance too low to process transaction');
 		
-	$transaction_json = json_encode($transaction);
 	$db->insert('transaction', $transaction_json);
 	$db->insert('user_x_transaction', array(
 			'user_id' => $userId,
@@ -213,6 +216,9 @@ function validate_pin($userId, $pin) {
 	utils::checkLogin();
 	
 	$db = new mysql();
+	
+	var_dump($userId);
+	var_dump($pin);
 	
 	$result = $db->row(array(
 			'table' => "user",

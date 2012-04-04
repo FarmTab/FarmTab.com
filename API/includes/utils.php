@@ -75,6 +75,78 @@ class utils {
 		$_SESSION['token'] = $token;
 		return $_SESSION['token'];	
 	}
+	
+	static function checkEmptyOrNotSet($args) {
+	
+		var_dump($args);
+	
+		foreach ($args as $arg) {
+			checkValEmptyOrNotSet($arg);
+		}
+		
+		return true;
+	}
+	
+	static function checkValEmptyOrNotSet($arg) {
+		if (!isset($arg) || empty($arg))
+			failure("argument empty or not set: " . key($arg) . "\n" .
+				"called from " . $_GET['type'] );
+	}
+}
+
+
+class validate {
+
+	function validate_pin($pin) {
+		if (6 > strlen($pin))
+			failure("PIN too long");
+		return true;
+	}
+	
+	function validate_email($email) {
+		if (!filter_var($email, FILTER_VALIDATE_EMAIL))
+			failure("invalid email");
+		return true;
+	}
+	
+	
+	static function link_user($userId, $farmId) {
+		utils::checkEmptyOrNotSet(func_get_args());
+		
+		$userId = filter_var($userId, FILTER_SANITIZE_NUMBER_INT);
+		$farmId = filter_var($farmId, FILTER_SANITIZE_NUMBER_INT);
+		
+		if ($farmId != $_SESSION['farmId'])
+			failure("can't register users to farms you don't own.");
+	}
+	
+	static function process_transaction($userId, $transaction_json, $token) {
+		utils::checkEmptyOrNotSet(func_get_args());
+		
+		$transaction = json_decode($transaction_json);
+		
+		
+	}
+
+	static function register_user($name, $email, $pin, $farmId) {
+	
+		utils::checkEmptyOrNotSet(func_get_args());
+		
+		$name = filter_var($name, FILTER_SANITIZE_SPECIAL_CHARS);
+		$email = filter_var($email, FILTER_SANITIZE_EMAIL);
+		$pin = filter_var($pin, FILTER_SANITIZE_NUMBER_INT);
+		$farmId = filter_var($farmId, FILTER_SANITIZE_NUMBER_INT);
+		
+	
+		if ($farmId != $_SESSION['farmId'])
+			failure("can't register users to farms you don't own.");
+		
+		validate_email($email);
+		validate_pin($pin);
+		
+		return true;
+	}
+
 }
 
 function failure($message) {
