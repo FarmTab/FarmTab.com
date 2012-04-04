@@ -10,7 +10,10 @@ if (!isset($_GET['api_key']) || !utils::check_api_key($_GET['api_key'])) {
 }
 
 
+
 class utils {
+
+	const token_lifespan = 120000;
 
 	static function check_api_key($apiKey) {
 		require_once('db.php');
@@ -25,9 +28,11 @@ class utils {
 		return true;
 	}
 	
-	static function checkToken() {
-		if (time() - $_SESSION['token_timestamp'] > 120000) // 2 minutes timeout
-			return false;
+	static function checkToken($token) {
+		if (!isset($_SESSION['token']) || $token !== $_SESSION['token'])
+			failure('token invalid')
+		else if (time() - $_SESSION['token_timestamp'] > token_lifespan)
+			failure('token timeout: too old');
 		return true;
 	}
 	

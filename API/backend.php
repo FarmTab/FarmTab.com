@@ -25,7 +25,7 @@ if (isset($_GET['type'])) {
 			$response = register_user($_POST['name'], $_POST['email'], $_POST['pin'], $_GET['farmId']);
 			break;
 		case 'transaction':
-			$response = process_transaction($_POST['userId'], $_POST['transaction']);
+			$response = process_transaction($_POST['userId'], $_POST['transaction'], $_POST['token']);
 			break;
 		case 'userlist':
 			$response = get_users($_GET['farmId']);
@@ -165,7 +165,6 @@ function get_users($farmId) {
 function get_balance($userId) {
 	
 	utils::checkLogin();
-	utils::checkToken();
 	
 	$db = new mysql();
 	
@@ -179,10 +178,10 @@ function get_balance($userId) {
 }
 
 
-function process_transaction($userId, $transaction) {
+function process_transaction($userId, $transaction, $token) {
 	
 	utils::checkLogin();
-	utils::checkToken();
+	utils::checkToken($token);
 		
 	$db = new mysql();
 	
@@ -195,9 +194,7 @@ function process_transaction($userId, $transaction) {
 		failure('Balance too low to process transaction');
 		
 	$transaction_json = json_encode($transaction);
-		
-	$transactionId = $db->insert('transaction', $transaction_json);
-	
+	$db->insert('transaction', $transaction_json);
 	$db->insert('user_x_transaction', array(
 			'user_id' => $userId,
 			'transaction_id' => "LAST_INSERT_ID()"
@@ -233,7 +230,8 @@ function validate_pin($userId, $pin) {
 	$response['status'] = 'success';
 	$response['data'] = array(
 		'balance' => $result['balance'],
-		'token' => $token
+		'token' => $token,
+		'timeout' => time() + utils::token_lifespan
 	);	
 	
 	return $response; 
