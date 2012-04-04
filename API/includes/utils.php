@@ -5,7 +5,7 @@ if (isset($_REQUEST['SESSION']) ){
 	exit(999);
 }
 
-if (!isset($_GET['api_key']) || !utils::check_api_key($_GET['api_key'])) {
+if (!isset($_GET['api_key']) || !utils::checkApiKey($_GET['api_key'])) {
 	failure('invalid API key or API key not set');
 }
 
@@ -15,7 +15,7 @@ class utils {
 
 	const token_lifespan = 120000;
 
-	static function check_api_key($apiKey) {
+	static function checkApiKey($apiKey) {
 		require_once('db.php');
 		$db = new mysql();
 		
@@ -30,7 +30,7 @@ class utils {
 	
 	static function checkToken($token) {
 		if (!isset($_SESSION['token']) || $token !== $_SESSION['token'])
-			failure('token invalid')
+			failure('token invalid');
 		else if (time() - $_SESSION['token_timestamp'] > token_lifespan)
 			failure('token timeout: too old');
 		return true;
@@ -48,11 +48,11 @@ class utils {
 		return $salt;
 	}
 	
-	static function make_password($pass, $salt) {
+	static function makePassword($pass, $salt) {
 		return base64_encode(sha1($pass . $salt, true) . $salt);
 	}
 	
-	static function logout_user() {
+	static function logoutUser() {
 		$_SESSION = array();
 		$params = session_get_cookie_params();
 	    setcookie(session_name(), '', time() - 42000,

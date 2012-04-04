@@ -68,7 +68,7 @@ function attempt_login($email, $pass) {
 
 function attempt_logout() {
 
-	utils::logout_user();
+	utils::logoutUser();
 
 	$response = array(
     	'result' => "success",
@@ -86,8 +86,8 @@ function register_user($name, $email, $pin, $farmId) {
 	if ($farmId != $_SESSION['farmId'])
 		failure("can't register users to farms you don't own.");
 
-	$salt = utils::generate_salt();
-	$hashedPin = utils::make_password($pin, $salt);
+	$salt = utils::generateSalt();
+	$hashedPin = utils::makePassword($pin, $salt);
 	
 	$userId = $db->insert('user', array(
 			'email' => $email,
@@ -225,7 +225,7 @@ function validate_pin($userId, $pin) {
 	if ($PIN1 !== $PIN2)
 		failure('Authentication failure, PIN invalid');
 		
-	$token = setToken($userId);
+	$token = utils::setToken($userId);
 		
 	$response['status'] = 'success';
 	$response['data'] = array(
