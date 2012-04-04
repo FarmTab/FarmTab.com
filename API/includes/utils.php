@@ -12,16 +12,6 @@ if (!isset($_GET['api_key']) || !utils::check_api_key($_GET['api_key'])) {
 
 class utils {
 
-	static function logout_user() {
-		$_SESSION = array();
-		$params = session_get_cookie_params();
-	    setcookie(session_name(), '', time() - 42000,
-	        $params["path"], $params["domain"],
-	        $params["secure"], $params["httponly"]
-	    );
-	    session_destroy();
-	}
-	
 	static function check_api_key($apiKey) {
 		require_once('db.php');
 		$db = new mysql();
@@ -33,6 +23,38 @@ class utils {
 		//if (!isset($_SESSION['valid']) || !$_SESSION['valid'])
 		//	failure('Authentication error');
 		return true;
+	}
+	
+	static function checkToken() {
+		if (time() - $_SESSION['token_timestamp'] > 120000) // 2 minutes timeout
+			return false;
+		return true;
+	}
+	
+	/** @author AfroSoft <info@afrosoft.tk> */
+	static function generateSalt() {
+		$characterList = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+		$i = 0;
+		$salt = "";
+		do {
+			$salt .= $characterList{mt_rand(0,strlen($characterList)-1)};
+			$i++;
+		} while ($i < 15);
+		return $salt;
+	}
+	
+	static function make_password($pass, $salt) {
+		return base64_encode(sha1($pass . $salt, true) . $salt);
+	}
+	
+	static function logout_user() {
+		$_SESSION = array();
+		$params = session_get_cookie_params();
+	    setcookie(session_name(), '', time() - 42000,
+	        $params["path"], $params["domain"],
+	        $params["secure"], $params["httponly"]
+	    );
+	    session_destroy();
 	}
 	
 	static function setToken($userId) {
@@ -47,29 +69,6 @@ class utils {
 		$_SESSION['token_timestamp'] = time();
 		$_SESSION['token'] = $token;
 		return $_SESSION['token'];	
-	}
-	
-	static function checkToken() {
-		if (time() - $_SESSION['token_timestamp'] > 120000) // 2 minutes timeout
-			return false;
-		return true;
-	}
-	
-	static function make_password($pass, $salt) {
-		return base64_encode(sha1($pass . $salt, true) . $salt);
-	}
-		
-		
-	/** @author AfroSoft <info@afrosoft.tk> */
-	static function generateSalt() {
-		$characterList = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-		$i = 0;
-		$salt = "";
-		do {
-			$salt .= $characterList{mt_rand(0,strlen($characterList)-1)};
-			$i++;
-		} while ($i < 15);
-		return $salt;
 	}
 }
 
