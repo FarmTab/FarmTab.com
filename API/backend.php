@@ -21,8 +21,8 @@ if (isset($_GET['type'])) {
 		case 'logout':
 			$response = attempt_logout();
 			break;
-		case 'register':
-			$response = register_user($_POST['email'], $_POST['pin'], $_POST['farmId']);
+		case 'registeruser':
+			$response = register_user($_POST['name'], $_POST['email'], $_POST['pin'], $_GET['farmId']);
 			break;
 		case 'transaction':
 			$response = process_transaction($_POST['userId'], $_POST['transaction']);
@@ -46,7 +46,7 @@ function attempt_login($email, $pass) {
 	
 	// db function validates, no worries about injections
 	$salt = $db->get('farm', 'salt', "email=$email") or failure('Could not find farmer');
-	$cryptedPass = make_password($pass, $salt);
+	$cryptedPass = utils::make_password($pass, $salt);
 	
 	$response = $db->select(array(
 			'table' => "farm",
@@ -68,7 +68,7 @@ function attempt_login($email, $pass) {
 
 function attempt_logout() {
 
-	logout_user();
+	utils::logout_user();
 
 	$response = array(
     	'result' => "success",
@@ -78,16 +78,16 @@ function attempt_logout() {
     exit;
 }
 
-function register_user($email, $pin, $farmId) {
-	checkLogin();
+function register_user($name, $email, $pin, $farmId) {
+	utils::checkLogin();
 
 	$db = new mysql();
 	
 	if ($farmId != $_SESSION['farmId'])
 		failure("can't register users to farms you don't own.");
 
-	$salt = generate_salt();
-	$hashedPin = make_password($pin, $salt);
+	$salt = utils::generate_salt();
+	$hashedPin = utils::make_password($pin, $salt);
 	
 	$userId = $db->insert('user', array(
 			'email' => $email,
@@ -127,7 +127,7 @@ function setup_xtab($userId, $farmId, $db) {
 }
 
 function link_user($userId, $farmId) {
-	checkLogin();
+	utils::checkLogin();
 	
 	if ($farmId !== $_SESSION['farmId'])
 		failure("can't link users to farms you don't own.");
@@ -142,7 +142,7 @@ function link_user($userId, $farmId) {
 
 function get_users($farmId) {
 	
-	checkLogin();
+	utils::checkLogin();
 	
 	$db = new mysql();
 	
@@ -164,8 +164,8 @@ function get_users($farmId) {
 
 function get_balance($userId) {
 	
-	checkLogin();
-	checkToken();
+	utils::checkLogin();
+	utils::checkToken();
 	
 	$db = new mysql();
 	
@@ -181,8 +181,8 @@ function get_balance($userId) {
 
 function process_transaction($userId, $transaction) {
 	
-	checkLogin();
-	checkToken();
+	utils::checkLogin();
+	utils::checkToken();
 		
 	$db = new mysql();
 	
@@ -213,7 +213,7 @@ function process_transaction($userId, $transaction) {
 
 function validate_pin($userId, $pin) {
 	
-	checkLogin();
+	utils::checkLogin();
 	
 	$db = new mysql();
 	
