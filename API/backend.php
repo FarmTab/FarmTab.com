@@ -87,11 +87,11 @@ function register_user($name, $email, $pin, $farmId) {
 		failure("can't register users to farms you don't own.");
 
 	$salt = utils::generateSalt();
-	$hashedPin = utils::makePassword($pin, $salt);
+	$cryptedPin = utils::makePassword($pin, $salt);
 	
 	$userId = $db->insert('user', array(
 			'email' => $email,
-			'pin' => $hashedPin,
+			'pin' => $cryptedPin,
 			'salt' => $salt
 	)) or failure('could not register user');
 	
