@@ -1,0 +1,178 @@
+/* http://meyerweb.com/eric/tools/css/reset/ 
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+	text-decoration: none;
+	color: black;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+
+/* Layout */
+
+body{
+	text-align: center;
+
+}
+
+#wrap{
+	width: 960px;
+	margin: 20px auto;
+	text-align: left;
+
+}
+
+#header{
+}
+
+#top-nav{
+	text-align: right;
+	padding: 5px 5px;
+	font-family: Oswald;
+		color: gray;
+	
+}
+
+#top-nav a{
+	color: gray;
+	
+}
+
+#top-nav a:hover{
+	color: black;
+}
+
+
+#banner{
+	position: relative;
+	
+}
+
+
+#header-image{
+	position: relative;
+
+}
+
+#logo{
+	position: absolute;
+	top: 5px;
+	left: -25;
+}
+
+#about-nav{
+	font: bold 14pt Oswald;
+	color: #333
+	
+}
+
+#about a{
+	background: none;
+	text-transform: capitalize;
+	padding: 20px 15px;
+	display: inline-block;
+
+}
+
+#about a:hover{
+	background: #aaa;
+	
+}
+
+#content{
+
+
+}
+
+#footer{
+	font: 10pt Oswald;
+	text-align: center;
+}
+
+.tab {
+	display: none;
+}
+
+
+nav{
+	background: gray;
+	clear: both;
+}
+
+nav a{
+	background: #333;
+	padding: 10px;
+	text-decoration: none;
+	color: white;
+	display: inline-block;
+}
+
+nav a:hover{
+	background: #aaa;
+	color: black;
+}
+
+nav a.selected{
+	background: #ccc;
+	color: black;
+}
+
+
+/* Fonts */
+
+p{
+	font: italic 10pt Georgia, serif;
+	line-height: 140%;
+}
+
+h1, h2, h3, h4, h5, h6{
+	font-family: Oswald;
+	font-weight: bold;
+}
+
+h1{
+	font: 14pt Oswald;
+
+}
