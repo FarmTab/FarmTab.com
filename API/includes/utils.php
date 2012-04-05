@@ -78,19 +78,19 @@ class utils {
 	
 	static function checkEmptyOrNotSet($args) {
 	
-		var_dump($args);
-	
-		foreach ($args as $arg) {
-			checkValEmptyOrNotSet($arg);
+		if (is_array($args)) {
+			foreach ($args as $arg) {
+				if (!isset($arg) || empty($arg))
+					failure("argument empty or not set: " . key($arg) . " => $arg. " .
+						"called from " . $_GET['type'] );
+			}
+		} else {
+			if (!isset($arg) || empty($arg))
+				failure("argument empty or not set: " . key($arg) . " => $arg. " .
+					"called from " . $_GET['type'] );
 		}
 		
 		return true;
-	}
-	
-	static function checkValEmptyOrNotSet($arg) {
-		if (!isset($arg) || empty($arg))
-			failure("argument empty or not set: " . key($arg) . "\n" .
-				"called from " . $_GET['type'] );
 	}
 }
 

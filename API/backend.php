@@ -33,6 +33,8 @@ if (isset($_GET['type'])) {
 		case 'validate':
 			$response = validate_pin($_POST['userId'], $_POST['pin']);
 			break;
+		default:
+			failure("unrecognized API call");
 	}
 	
 	print json_encode($response);
@@ -56,8 +58,6 @@ function attempt_login($email, $pass) {
 	
 	
 	session_regenerate_id (); // for security
-    $_SESSION['valid'] = true;
-    $_SESSION['farmId'] = $response['id'];
 	
 	$response['status'] = 'success';
 	$response['data'] = array(
@@ -216,9 +216,6 @@ function validate_pin($userId, $pin) {
 	utils::checkLogin();
 	
 	$db = new mysql();
-	
-	var_dump($userId);
-	var_dump($pin);
 	
 	$result = $db->row(array(
 			'table' => "user",
