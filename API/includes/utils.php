@@ -76,6 +76,15 @@ class utils {
 		return $_SESSION['token'];	
 	}
 	
+	static function check_farm_exists($farmId) {
+		require_once('includes/db.php');
+		
+		$db = new mysql();
+		
+		return $db->get('farm', 'farm_name', "id = '$farmId'")
+			or failure("Farm not registered in database");
+	}
+	
 	static function checkEmptyOrNotSet($args) {
 	
 		if (is_array($args)) {
@@ -112,11 +121,12 @@ class validate {
 	
 	static function link_user($userId, $farmId) {
 		utils::checkEmptyOrNotSet(func_get_args());
+		utils::check_farm_exists($farmId);
 		
 		$userId = filter_var($userId, FILTER_SANITIZE_NUMBER_INT);
 		$farmId = filter_var($farmId, FILTER_SANITIZE_NUMBER_INT);
 		
-		if ($farmId != $_SESSION['farmId'])
+		if ($farmId !== $_SESSION['farmId'])
 			failure("can't register users to farms you don't own.");
 	}
 	
