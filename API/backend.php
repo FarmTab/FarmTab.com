@@ -13,7 +13,7 @@ if (isset($_GET['type'])) {
 
 	switch($_GET['type']) {
 		case 'linkuser':
-			$response = link_user($_GET['userId'],$_GET['farmId']);
+			$response = link_user($_GET['userId']);
 			break;
 		case 'login':
 			$response = attempt_login($_POST['email'], $_POST['password']);
@@ -22,13 +22,13 @@ if (isset($_GET['type'])) {
 			$response = attempt_logout();
 			break;
 		case 'registeruser':
-			$response = register_user($_POST['name'], $_POST['email'], $_POST['pin'], $_GET['farmId']);
+			$response = register_user($_POST['name'], $_POST['email'], $_POST['pin']);
 			break;
 		case 'transaction':
 			$response = process_transaction($_POST['userId'], $_POST['transaction'], $_POST['token']);
 			break;
 		case 'userlist':
-			$response = get_users($_GET['farmId']);
+			$response = get_users();
 			break;
 		case 'validate':
 			$response = validate_pin($_POST['userId'], $_POST['pin']);
@@ -50,7 +50,7 @@ function attempt_login($email, $pass) {
 	$salt = $db->get('farm', 'salt', "email=$email") or failure('Could not find farmer');
 	$cryptedPass = utils::make_password($pass, $salt);
 	
-	$response = $db->select(array(
+	$farm = $db->select(array(
 			'table' => "farm",
 			'fields' => "id",
 			'condition' => "email=$email AND pass=$cryptedPass"
@@ -61,7 +61,7 @@ function attempt_login($email, $pass) {
 	
 	$response['status'] = 'success';
 	$response['data'] = array(
-			'farmId' => $response['id']
+			'farmId' => $farm['id']
 	);
 	return $response;
 }
@@ -74,13 +74,13 @@ function attempt_logout() {
     	'result' => "success",
     	'data'   => array('message' => "logged out")
     );
-    json_encode($response);
-    exit;
+    
+    return $response;
 }
 
-function register_user($name, $email, $pin, $farmId) {
+function register_user($name, $email, $pin) {
 	utils::checkLogin();
-	validate::register_user($name, $email, $pin, $farmId);
+	validate::register_user($name, $email, $pin);
 
 	$db = new mysql();
 
@@ -94,7 +94,7 @@ function register_user($name, $email, $pin, $farmId) {
 			'salt'  => $salt
 	)) or failure('could not register user');
 	
-	setup_xtab($userId, $farmId, $db);
+	setup_xtab($userId, $db);
 	
 	$response['status'] = 'success';
 	$response['data'] = array('userId' => $userId);
@@ -102,7 +102,9 @@ function register_user($name, $email, $pin, $farmId) {
 	return $response;
 }
 
-function setup_xtab($userId, $farmId, $db) {
+function setup_xtab($userId, $db) {
+
+	$farmId = $_SESSION['farmId'];
 
 	$db->insert('farm_x_user', array(
 			'farm_id' => $farmId,
@@ -125,14 +127,10 @@ function setup_xtab($userId, $farmId, $db) {
 
 }
 
-function link_user($userId, $farmId) {
+function link_user($userId) {
 	utils::checkLogin();
-	validate::link_user();
 	
-	if ($farmId !== $_SESSION['farmId'])
-		failure("can't link users to farms you don't own.");
-	
-	setup_xtab($userId, $farmId, $db);	
+	setup_xtab($userId, $db);
 	
 	$response['status'] = 'success';
 	$response['data'] = array('message' => "inserted successfully");
@@ -140,9 +138,11 @@ function link_user($userId, $farmId) {
 	return $response;	
 }
 
-function get_users($farmId) {
+function get_users() {
 	
 	utils::checkLogin();
+	
+	$farmId = $_SESSION['farmId'];
 	
 	$db = new mysql();
 	
@@ -162,9 +162,11 @@ function get_users($farmId) {
 	return $response;
 }
 
-function get_balance($userId, $farmId) {
+function get_balance($userId) {
 	
 	utils::checkLogin();
+	
+	$farmId = $_SESSION['farmId'];
 	
 	$db = new mysql();
 	
@@ -185,11 +187,11 @@ function process_transaction($userId, $transaction_json, $token) {
 	utils::checkToken($token);
 	
 	$transaction = json_decode($transaction_json);
-	$farmId = $transaction['farmId'];
-		
+	$farmId = $_SESSION['farmId'];
+	
 	$db = new mysql();
 	
-	$b = get_balance($userId, $farmId);
+	$b = get_balance($userId);
 	$currentBal = $b['data']['balance'];
 	
 	$newBal = $currentBal - $transaction['amount'];
@@ -235,7 +237,7 @@ function validate_pin($userId, $pin) {
 		'balance' => $result['balance'],
 		'token' => $token,
 		'timeout' => time() + utils::token_lifespan
-	);	
+	);
 	
 	return $response; 
 }

@@ -76,13 +76,13 @@ class utils {
 		return $_SESSION['token'];	
 	}
 	
-	static function check_farm_exists($farmId) {
+	static function checkUserExists($userId) {
 		require_once('includes/db.php');
 		
 		$db = new mysql();
 		
-		return $db->get('farm', 'farm_name', "id = '$farmId'")
-			or failure("Farm not registered in database");
+		return $db->get('user', 'name', "id = '$userId'")
+			or failure("User not registered in database");
 	}
 	
 	static function checkEmptyOrNotSet($args) {
@@ -108,7 +108,9 @@ class validate {
 
 	function validate_pin($pin) {
 		if (6 > strlen($pin))
-			failure("PIN too long");
+			failure("PIN too long. cannot be more than 6 characters");
+		if (4 <= strlen($pin))
+			failure("PIN too short. must be at least 4 characters");
 		return true;
 	}
 	
@@ -118,38 +120,24 @@ class validate {
 		return true;
 	}
 	
-	
-	static function link_user($userId, $farmId) {
-		utils::checkEmptyOrNotSet(func_get_args());
-		utils::check_farm_exists($farmId);
-		
-		$userId = filter_var($userId, FILTER_SANITIZE_NUMBER_INT);
-		$farmId = filter_var($farmId, FILTER_SANITIZE_NUMBER_INT);
-		
-		if ($farmId !== $_SESSION['farmId'])
-			failure("can't register users to farms you don't own.");
-	}
-	
 	static function process_transaction($userId, $transaction_json, $token) {
 		utils::checkEmptyOrNotSet(func_get_args());
 		
 		$transaction = json_decode($transaction_json);
 		
+		// if ($transaction['amount']…)
+		
 		
 	}
 
-	static function register_user($name, $email, $pin, $farmId) {
+	static function register_user($name, $email, $pin) {
 	
 		utils::checkEmptyOrNotSet(func_get_args());
 		
 		$name = filter_var($name, FILTER_SANITIZE_SPECIAL_CHARS);
 		$email = filter_var($email, FILTER_SANITIZE_EMAIL);
 		$pin = filter_var($pin, FILTER_SANITIZE_NUMBER_INT);
-		$farmId = filter_var($farmId, FILTER_SANITIZE_NUMBER_INT);
 		
-	
-		if ($farmId != $_SESSION['farmId'])
-			failure("can't register users to farms you don't own.");
 		
 		validate_email($email);
 		validate_pin($pin);
