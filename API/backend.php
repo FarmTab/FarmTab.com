@@ -11,7 +11,7 @@ header('Content-Type: application/json charset=UTF-8');
 
 if (isset($_GET['type'])) {
 
-	switch($_GET['type']) {
+	switch(strtolower($_GET['type'])) {
 		case 'currentfarm':
 			$response = get_current_farm();
 			break;
@@ -63,7 +63,7 @@ function attempt_login($email, $pass) {
 			'table' => "farm",
 			'fields' => "id",
 			'condition' => "email=$email AND pass=$cryptedPass"
-		))
+		));
 	
 	if (!$farm)	{
     $db->update('login_attempts', array('login_successful' => false), "`id`='$login_id'" );
