@@ -25,6 +25,11 @@ class utils {
 	static function checkLogin() {
 		//if (!isset($_SESSION['valid']) || !$_SESSION['valid'])
 		//	failure('Authentication error');
+		
+		/// NUR FOR TEST
+		$_SESSION['valid'] = true;
+		$_SESSION['farmId'] = 2;
+		/// NUR FOR TEST
 		return true;
 	}
 	
@@ -49,7 +54,7 @@ class utils {
 	}
 	
 	static function makePassword($pass, $salt) {
-		return base64_encode(sha1($pass . $salt, true) . $salt);
+		return base64_encode(hash('sha256', $pass . $salt, true) . $salt . secrets::SALT);
 	}
 	
 	static function logoutUser() {

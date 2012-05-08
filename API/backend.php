@@ -12,6 +12,9 @@ header('Content-Type: application/json charset=UTF-8');
 if (isset($_GET['type'])) {
 
 	switch($_GET['type']) {
+		case 'currentfarm':
+			$response = get_current_farm();
+			break;
 		case 'linkuser':
 			$response = link_user($_GET['userId']);
 			break;
@@ -46,6 +49,12 @@ function attempt_login($email, $pass) {
 
 	$db = new mysql();
 	
+	$login_id = $db->insert('login_attempts', array(
+    'email' => $email,
+    'request_user_agent' => $_SERVER['HTTP_USER_AGENT'],
+    'request_ip' => $_SERVER['request_ip']
+	));
+	
 	// db function validates, no worries about injections
 	$salt = $db->get('farm', 'salt', "email=$email") or failure('Could not find farmer');
 	$cryptedPass = utils::make_password($pass, $salt);
@@ -54,8 +63,14 @@ function attempt_login($email, $pass) {
 			'table' => "farm",
 			'fields' => "id",
 			'condition' => "email=$email AND pass=$cryptedPass"
-		)) or failure('Could not log in');
+		))
 	
+	if (!$farm)	{
+    $db->update('login_attempts', array('login_successful' => false), "`id`='$login_id'" );
+    failure('Could not log in');
+	} else {
+    $db->update('login_attempts', array('login_successful' => true), "`id`='$login_id'");
+  }
 	
 	session_regenerate_id (); // for security
 	
@@ -136,6 +151,13 @@ function link_user($userId) {
 	$response['data'] = array('message' => "inserted successfully");
 	
 	return $response;	
+}
+
+function get_current_farm() {
+	utils::checkLogin();
+	
+	$response['status'] = 'success';
+	$response['data'] = array('farm_id' => $_SESSION['farmId']);
 }
 
 function get_users() {
