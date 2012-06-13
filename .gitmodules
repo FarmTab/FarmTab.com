@@ -1,0 +1,3 @@
+[submodule "API/includes/php-activerecord"]
+	path = API/includes/php-activerecord
+	url = git://github.com/kla/php-activerecord.git
