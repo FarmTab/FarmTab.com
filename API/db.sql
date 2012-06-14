@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: mysql.farmtab.com
--- Generation Time: Jun 13, 2012 at 03:48 PM
+-- Generation Time: Jun 13, 2012 at 07:41 PM
 -- Server version: 5.1.39
 -- PHP Version: 5.2.17
 
@@ -28,10 +28,58 @@ CREATE TABLE IF NOT EXISTS `api_clients` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `farm`
+-- Table structure for table `customers`
 --
 
-CREATE TABLE IF NOT EXISTS `farm` (
+CREATE TABLE IF NOT EXISTS `customers` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) CHARACTER SET latin1 NOT NULL,
+  `email` varchar(255) CHARACTER SET latin1 NOT NULL,
+  `pin` varchar(48) CHARACTER SET latin1 NOT NULL,
+  `salt` varchar(15) CHARACTER SET latin1 NOT NULL,
+  `phone` varchar(255) CHARACTER SET latin1 NOT NULL,
+  `fb_id` varchar(255) CHARACTER SET latin1 NOT NULL,
+  `fb_token` varchar(64) CHARACTER SET latin1 NOT NULL,
+  `twitter_id` varchar(24) CHARACTER SET latin1 NOT NULL,
+  `twitter_token` varchar(64) CHARACTER SET latin1 NOT NULL,
+  `fsq_id` varchar(255) CHARACTER SET latin1 NOT NULL,
+  `fsq_token` varchar(64) CHARACTER SET latin1 NOT NULL,
+  `img_url` varchar(255) CHARACTER SET latin1 NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=8 ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `customer_x_tab`
+--
+
+CREATE TABLE IF NOT EXISTS `customer_x_tab` (
+  `customer_id` int(11) NOT NULL,
+  `tab_id` int(11) NOT NULL,
+  PRIMARY KEY (`customer_id`,`tab_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `customer_x_transaction`
+--
+
+CREATE TABLE IF NOT EXISTS `customer_x_transaction` (
+  `customer_id` int(11) NOT NULL,
+  `transaction_id` int(11) NOT NULL,
+  PRIMARY KEY (`customer_id`,`transaction_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `farms`
+--
+
+CREATE TABLE IF NOT EXISTS `farms` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `email` varchar(255) NOT NULL,
   `pass` varchar(48) NOT NULL,
@@ -50,6 +98,18 @@ CREATE TABLE IF NOT EXISTS `farm` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2 ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `farm_x_customer`
+--
+
+CREATE TABLE IF NOT EXISTS `farm_x_customer` (
+  `farm_id` int(11) NOT NULL,
+  `customer_id` int(11) NOT NULL,
+  PRIMARY KEY (`farm_id`,`customer_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -78,18 +138,6 @@ CREATE TABLE IF NOT EXISTS `farm_x_transaction` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `farm_x_user`
---
-
-CREATE TABLE IF NOT EXISTS `farm_x_user` (
-  `farm_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
-  PRIMARY KEY (`farm_id`,`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `farm_x_venue`
 --
 
@@ -102,12 +150,12 @@ CREATE TABLE IF NOT EXISTS `farm_x_venue` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `inventory`
+-- Table structure for table `inventories`
 --
 
-CREATE TABLE IF NOT EXISTS `inventory` (
+CREATE TABLE IF NOT EXISTS `inventories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `item` int(11) NOT NULL,
+  `item_id` int(11) NOT NULL,
   `farm_id` varchar(255) NOT NULL,
   `stock` varchar(255) NOT NULL,
   `availability` tinyint(1) NOT NULL,
@@ -208,10 +256,10 @@ CREATE TABLE IF NOT EXISTS `schedule` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `tab`
+-- Table structure for table `tabs`
 --
 
-CREATE TABLE IF NOT EXISTS `tab` (
+CREATE TABLE IF NOT EXISTS `tabs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `farm_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
@@ -223,16 +271,16 @@ CREATE TABLE IF NOT EXISTS `tab` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `transaction`
+-- Table structure for table `transactions`
 --
 
-CREATE TABLE IF NOT EXISTS `transaction` (
+CREATE TABLE IF NOT EXISTS `transactions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `receipt_dump` varchar(255) NOT NULL,
   `amount` varchar(255) NOT NULL,
-  `venue` int(11) NOT NULL,
-  `farm` int(11) NOT NULL,
-  `user` int(11) NOT NULL,
+  `venue_id` int(11) NOT NULL,
+  `farm_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
   `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2 ;
@@ -240,58 +288,10 @@ CREATE TABLE IF NOT EXISTS `transaction` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `user`
+-- Table structure for table `venues`
 --
 
-CREATE TABLE IF NOT EXISTS `user` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
-  `email` varchar(255) NOT NULL,
-  `pin` varchar(48) NOT NULL,
-  `salt` varchar(15) NOT NULL,
-  `phone` varchar(255) NOT NULL,
-  `fb_id` varchar(255) NOT NULL,
-  `fb_token` varchar(64) NOT NULL,
-  `twitter_id` varchar(24) NOT NULL,
-  `twitter_token` varchar(64) NOT NULL,
-  `fsq_id` varchar(255) NOT NULL,
-  `fsq_token` varchar(64) NOT NULL,
-  `img_url` varchar(255) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=8 ;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `user_x_tab`
---
-
-CREATE TABLE IF NOT EXISTS `user_x_tab` (
-  `user_id` int(11) NOT NULL,
-  `tab_id` int(11) NOT NULL,
-  PRIMARY KEY (`user_id`,`tab_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `user_x_transaction`
---
-
-CREATE TABLE IF NOT EXISTS `user_x_transaction` (
-  `user_id` int(11) NOT NULL,
-  `transaction_id` int(11) NOT NULL,
-  PRIMARY KEY (`user_id`,`transaction_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `venue`
---
-
-CREATE TABLE IF NOT EXISTS `venue` (
+CREATE TABLE IF NOT EXISTS `venues` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `venue_name` varchar(255) NOT NULL,
   `venue_address` varchar(255) NOT NULL,
