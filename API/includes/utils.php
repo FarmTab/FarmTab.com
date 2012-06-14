@@ -10,7 +10,6 @@ if (!isset($_GET['api_key']) || !utils::checkApiKey($_GET['api_key'])) {
 }
 
 
-
 class utils {
 
 	const token_lifespan = 120000;
@@ -28,7 +27,7 @@ class utils {
 		
 		/// NUR FOR TEST
 		$_SESSION['valid'] = true;
-		$_SESSION['farmId'] = 2;
+		$_SESSION['farm'] = Farm::find(2);
 		/// NUR FOR TEST
 		return true;
 	}
@@ -81,15 +80,6 @@ class utils {
 		return $_SESSION['token'];	
 	}
 	
-	static function checkUserExists($userId) {
-		require_once('includes/db.php');
-		
-		$db = new mysql();
-		
-		return $db->get('user', 'name', "id = '$userId'")
-			or failure("User not registered in database");
-	}
-	
 	static function checkEmptyOrNotSet($args) {
 	
 		if (is_array($args)) {
@@ -106,50 +96,6 @@ class utils {
 		
 		return true;
 	}
-}
-
-
-class validate {
-
-	function validate_pin($pin) {
-		if (6 > strlen($pin))
-			failure("PIN too long. cannot be more than 6 characters");
-		if (4 <= strlen($pin))
-			failure("PIN too short. must be at least 4 characters");
-		return true;
-	}
-	
-	function validate_email($email) {
-		if (!filter_var($email, FILTER_VALIDATE_EMAIL))
-			failure("invalid email");
-		return true;
-	}
-	
-	static function process_transaction($userId, $transaction_json, $token) {
-		utils::checkEmptyOrNotSet(func_get_args());
-		
-		$transaction = json_decode($transaction_json);
-		
-		// if ($transaction['amount']…)
-		
-		
-	}
-
-	static function register_user($name, $email, $pin) {
-	
-		utils::checkEmptyOrNotSet(func_get_args());
-		
-		$name = filter_var($name, FILTER_SANITIZE_SPECIAL_CHARS);
-		$email = filter_var($email, FILTER_SANITIZE_EMAIL);
-		$pin = filter_var($pin, FILTER_SANITIZE_NUMBER_INT);
-		
-		
-		validate_email($email);
-		validate_pin($pin);
-		
-		return true;
-	}
-
 }
 
 function failure($message) {

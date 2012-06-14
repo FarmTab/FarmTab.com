@@ -17,11 +17,11 @@ if (isset($_GET['type'])) {
 
 
   switch(strtolower($_GET['type'])) {
-    case 'currentfarm':
-      $response = get_current_farm_id();
+    case 'farm':
+      $response = farm();
       break;
     case 'customer':
-      $response = customer_info($_GET['userId']);
+      $response = customer();
       break;
     case 'linkuser':
       $response = link_user($_GET['userId']);
@@ -38,9 +38,6 @@ if (isset($_GET['type'])) {
     case 'transaction':
       $response = process_transaction($_POST['userId'], $_POST['transaction'], $_POST['token']);
       break;
-    case 'userlist':
-      $response = get_users();
-      break;
     case 'validate':
       $response = validate_pin($_POST['userId'], $_POST['pin']);
       break;
@@ -48,6 +45,7 @@ if (isset($_GET['type'])) {
       failure("unrecognized API call");
   }
   
+  $response['status'] = 'success';
   print json_encode($response);
   exit();	
 }
@@ -66,24 +64,16 @@ function attempt_login($email, $pass) {
   // db function validates, no worries about injections
   $salt = $db->get('farm', 'salt', "email=$email") or failure('Could not find farmer');
   $cryptedPass = utils::make_password($pass, $salt);
+
+  $farm = Farm::find_by_email_and_pass($email, $cryptedPass)->to_array(array(
+    'include' => array('venues')
+  ));
   
-  $farm = $db->row(array(
-      'table' => "farm",
-      'fields' => "id, farm_name",
-      'condition' => "email=$email AND pass=$cryptedPass"
-    ));
-  
-  $was_login_successful = !$farm;
+  $was_login_successful = !$farm->errors;
   $db->update('login_attempts', array('login_successful' => $was_login_successful), "`id`='$login_id'" );
   if (!$farm) failure('Could not log in');
   
   session_regenerate_id (); // for security
-
-  $farm['farm_locations'] = $db->select(array(
-                              'fields' => "id, name",
-                              'table'  => "venue INNER JOIN farm_x_venue fx ON fx.venue_id = venue.id",
-                              'condition' => "fx.farm_id=$farmId"
-                            ));
   
   $response['status'] = 'success';
   $response['data'] = $farm;
@@ -102,127 +92,40 @@ function attempt_logout() {
   return $response;
 }
 
-function register_user($name, $email, $pin) {
-  utils::checkLogin();
-  validate::register_user($name, $email, $pin);
+function farm() {
 
-  $db = new mysql();
+  switch ($request_method) {
+    case 'GET':
+      //$response['data'] =
+        //Customer::find_all_by_farm($_SESSION['farm']->id)->to_array(array(
+        //  'include' => array('tabs')
+        //));
+      $response['data'] = $_SESSION['farm']->customers()->to(array(
+        'include' => array('tabs')
+      ));
+      break;
+    case 'POST':
+      break;
+    
 
-  $salt = utils::generateSalt();
-  $cryptedPin = utils::makePassword($pin, $salt);
-  
-  $userId = $db->insert('user', array(
-      'name'  => $name,
-      'email' => $email,
-      'pin'   => $cryptedPin,
-      'salt'  => $salt
-  )) or failure('could not register user');
-  
-  setup_xtab($userId, $db);
-  
-  $response['status'] = 'success';
-  $response['data'] = array('userId' => $userId);
-  
+  }
+
   return $response;
 }
 
-function setup_xtab($userId, $db) {
-
-  $farmId = $_SESSION['farmId'];
-
-  $db->insert('farm_x_user', array(
-      'farm_id' => $farmId,
-      'user_id' => $userId
-  ));
-  
-  $db->insert('tab', array(
-      'farm_id' => $farmId,
-      'user_id' => $userId,
-      'balance' => "0.00"
-  ));
-  
-  $db->insert('user_x_tab', array(
-      'user_id' => $userId,
-      'tab_id' => 'LAST_INSERT_ID()'
-  ));
-  
-  if (mysql_error())
-    failure("Couldn't insert into db: " . mysql_error());
-
-}
-
-function link_user($userId) {
-  
-  setup_xtab($userId, $db);
-  
-  $response['status'] = 'success';
-  $response['data'] = array('message' => "inserted successfully");
-  
-  return $response;	
-}
-
-function get_current_farm_id() {
-  
-  $response['status'] = 'success';
-  $response['data'] = array('farm_id' => $_SESSION['farmId']);
-}
-
-function get_users() {
-  
-  $farmId = $_SESSION['farmId'];
-  
-  $db = new mysql();
-  
-  $users = $db->query(
-      "SELECT user.id, user.name, user.img_url, tab.balance
-      FROM user
-      INNER JOIN farm_x_user fx
-          ON fx.user_id = user.id
-      INNER JOIN tab
-          ON tab.user_id = user.id AND tab.farm_id = $farmId
-      WHERE fx.farm_id = $farmId"
-      , false, false);
-      
-  $response['status'] = 'success';
-  $response['data'] = array( 'farmId' => $farmId, 'users' => $users );
-  
-  return $response;
-}
-
-function get_balance($userId) {
-  
-  $farmId = $_SESSION['farmId'];
-  
-  $db = new mysql();
-  
-  $bal = $db->get('tab','balance', "user_id='$userId' AND farm_id='$farmId'")
-          or failure('could not find user balance');
-  
-  $response['status'] = "success";
-  $response['data'] = array('balance' => $bal);
-  
-  return $response;
-}
-
-function customer_info($userId) {
-  $farmId = $_SESSION['farmId'];
+function customer() {
+  $farmId = $_SESSION['farm']->id;
   $userId = mysql_real_escape_string($userId);
-  
-  $db = new mysql();
-  
-  $user = $db->query(
-    "SELECT user.id, user.name, user.img_url, tab.balance
-    FROM user
-    INNER JOIN farm_x_user fx
-        ON fx.user_id = user.id
-    INNER JOIN tab
-        ON tab.user_id = user.id AND tab.farm_id = $farmId
-    WHERE fx.farm_id = '$farmId' AND user.id = '$userId'
-    LIMIT 1"
-    , false, false);
-  
-  $response['status'] = "success";
-  $response['data'] = array('balance' => $bal);
+
+  switch($request_method) {
+    case 'POST':
+      return register_user($_POST['name'], $_POST['email'], $_POST['PIN']);
+      break;
+    case 'GET':
+      $response['data'] = Customer::find($_GET['user_id']);
+      return $response;
+      break;
+  }
 }
 
 
@@ -258,20 +161,12 @@ function process_transaction($userId, $transaction_json, $token) {
   return $response;
 }
 
-function validate_pin($userId, $pin) {
+function validate_pin($userId, $test_pin) {
   
-  $db = new mysql();
+  $customer = Customer::find($userId);
   
-  $result = $db->row(array(
-      'table' => "user",
-      'fields' => "pin, salt, balance",
-      'condition' => "userId=$userId"
-    )) or failure('Could not find user');
-  $PIN1 = $result['pin'];
-  $PIN2 = make_password($pin, $result['salt']);
-  
-  if ($PIN1 !== $PIN2)
-    failure('Authentication failure, PIN invalid');
+  $customer->check_pin($test_pin)
+    or failure("Authentication failure, PIN invalid");
     
   $token = utils::setToken($userId);
     
@@ -283,6 +178,34 @@ function validate_pin($userId, $pin) {
   );
   
   return $response; 
+}
+
+
+
+private function current_farm() {
+  return $_SESSION['farm'];
+}
+
+private function register_user($name, $email, $pin) {
+
+  $customer = new Customer();
+  $customer->name  = $name;
+  $customer->email = $email;
+  $customer->pin   = $pin;
+
+  $customer.save();
+
+  if ($customer->$errors) {
+    log("Customer registration error: " . $customer->errors);
+    failure("Could not register customer");
+  }
+  
+  setup_xtab($userId, $db);
+  
+  $response['status'] = 'success';
+  $response['data'] = $customer;
+  
+  return $response;
 }
 
 ?>
