@@ -7,14 +7,20 @@ require_once('includes/utils.php');
 session_start();
 $response = array();
 
+
+// NUR FOR TEST
+$_SESSION['valid'] = true;
+$_SESSION['farm'] = Farm::find(2);
+// NUR FOR TEST
+
+
 header('Content-Type: application/json charset=UTF-8');
 $request_method = $_SERVER['REQUEST_METHOD'];
 
 if (isset($_GET['type'])) {
 
   if (!in_array(strtolower($_GET['type']), array("login","logout")))
-    utils::checkLogin();
-
+    utils::check_login();
 
   switch(strtolower($_GET['type'])) {
     case 'farm':
@@ -100,7 +106,7 @@ function farm() {
         //Customer::find_all_by_farm($_SESSION['farm']->id)->to_array(array(
         //  'include' => array('tabs')
         //));
-      $response['data'] = $_SESSION['farm']->customers()->to(array(
+      $response['data'] = current_farm()->customers()->to_array(array(
         'include' => array('tabs')
       ));
       break;
@@ -114,8 +120,7 @@ function farm() {
 }
 
 function customer() {
-  $farmId = $_SESSION['farm']->id;
-  $userId = mysql_real_escape_string($userId);
+  $farmId = current_farm()->id;
 
   switch($request_method) {
     case 'POST':
@@ -124,6 +129,11 @@ function customer() {
     case 'GET':
       $response['data'] = Customer::find($_GET['user_id']);
       return $response;
+      break;
+    case 'PUT':
+      $customer = Customer::find($_GET['user_id']);
+      $customer->update_attributes(json_decode($_POST['user']))
+            or failure("Could not update attributes: " . $customer->errors);
       break;
   }
 }
@@ -166,7 +176,7 @@ function validate_pin($userId, $test_pin) {
   $customer = Customer::find($userId);
   
   $customer->check_pin($test_pin)
-    or failure("Authentication failure, PIN invalid");
+    or auth_failure("Authentication failure, PIN invalid");
     
   $token = utils::setToken($userId);
     
@@ -182,16 +192,16 @@ function validate_pin($userId, $test_pin) {
 
 
 
-private function current_farm() {
+function current_farm() {
   return $_SESSION['farm'];
 }
 
-private function register_user($name, $email, $pin) {
+function register_user($name, $email, $pin) {
 
   $customer = new Customer();
   $customer->name  = $name;
   $customer->email = $email;
-  $customer->pin   = $pin;
+  $customer->pin   = $pin; // automatically encrypts
 
   $customer.save();
 
@@ -199,8 +209,6 @@ private function register_user($name, $email, $pin) {
     log("Customer registration error: " . $customer->errors);
     failure("Could not register customer");
   }
-  
-  setup_xtab($userId, $db);
   
   $response['status'] = 'success';
   $response['data'] = $customer;

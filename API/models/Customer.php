@@ -7,18 +7,18 @@
     );
 
     static $attr_protected = array(
-      array('cryptedPin'), array('salt')
+      array('crypted_pin'), array('salt')
     );
 
     static $validates_presence_of = array(
-      array('name'), array('cryptedPin'), array('email')
+      array('name'), array('crypted_pin'), array('email')
     );
 
     static $validates_uniqueness_of = array(
       array('email')
     );
 
-    static $before_save = array( 'set_up_x_tab' );
+    static $before_save = array( 'setup_x_tab' );
 
 
     static $has_many = array(
@@ -36,16 +36,16 @@
         failure("PIN cannot be more than 6 characters");
 
 
-      $this->salt = utils::generateSalt();
-      $this->cryptedPin = utils::makePassword($pin, $salt);
+      $this->salt = utils::generate_salt();
+      $this->crypted_pin = utils::make_password($pin, $salt);
     }
 
     
     public function check_pin($test_pin) {
-      return ($this->cryptedPin == utils::makePassword($test_pin, $this->salt));
+      return ($this->crypted_pin == utils::make_password($test_pin, $this->salt));
     }
 
-    private function set_up_x_tab() {
+    private function setup_x_tab() {
 
       $farmId = $_SESSION['farm']->id;
 
