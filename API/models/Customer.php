@@ -25,6 +25,10 @@
       array('tabs'),
       array('transactions')
     );
+    
+    static $belongs_to = array(
+      array('farm', 'primary_key' => 'farm_id')
+    );
 
 
     public function set_pin($new_pin) {
@@ -45,7 +49,9 @@
       return ($this->crypted_pin == utils::make_password($test_pin, $this->salt));
     }
 
-    private function setup_x_tab() {
+    public function setup_x_tab() {
+      
+      echo "why are you setting up an xtab?";
 
       $farmId = $_SESSION['farm']->id;
 

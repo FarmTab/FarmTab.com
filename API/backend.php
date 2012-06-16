@@ -98,16 +98,12 @@ function attempt_logout() {
 }
 
 function farm() {
-
   switch ($request_method) {
+    case '':
     case 'GET':
-      //$response['data'] =
-        //Customer::find_all_by_farm($_SESSION['farm']->id)->to_array(array(
-        //  'include' => array('tabs')
-        //));
-      $response['data'] = current_farm()->customers()->to_array(array(
-        'include' => array('tabs')
-      ));
+      $response['data']['id']    = current_farm()->id;
+      $response['data']['name']  = current_farm()->farm_name;
+      $response['data']['users'] = current_farm()->customers();
       break;
     case 'POST':
       break;

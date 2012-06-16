@@ -86,7 +86,7 @@ function failure($message) {
   $response['status'] = 'failure';
   $response['reason'] = $message;
   print json_encode($response);
-  log('failure: ' . $message . implode(', ', $_POST));
+  error_log('failure: ' . $message . implode(', ', $_POST));
   exit(9);
 }
 
