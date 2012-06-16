@@ -5,6 +5,10 @@ if (isset($_REQUEST['SESSION']) ){
   exit(999);
 }
 
+
+// NUR FOR TEST
+$_COOKIE['api_key'] = "124df26asdf";
+// /NUR FOR TEST
 if (!isset($_COOKIE['api_key']) || !utils::check_api_key($_COOKIE['api_key'])) {
   failure('invalid API key or API key not set');
 }

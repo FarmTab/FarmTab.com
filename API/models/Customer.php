@@ -2,7 +2,7 @@
 
   class Customer extends ActiveRecord\Model {
 
-    static attr_accessible = array(
+    static $attr_accessible = array(
       array('name'), array('email')
     );
 
@@ -28,7 +28,7 @@
 
 
     public function set_pin($new_pin) {
-      if (!is_int($new_pin)
+      if (!is_int($new_pin))
         failure("PIN must contain only numbers");
       if (strlen($new_pin) < 4)
         failure("PIN must be at least 4 characters");

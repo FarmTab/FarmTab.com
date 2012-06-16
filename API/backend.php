@@ -10,9 +10,8 @@ $response = array();
 
 // NUR FOR TEST
 $_SESSION['valid'] = true;
-$_SESSION['farm'] = Farm::find(2);
+$_SESSION['farm'] = Farm::find(1);
 // NUR FOR TEST
-
 
 header('Content-Type: application/json charset=UTF-8');
 $request_method = $_SERVER['REQUEST_METHOD'];
