@@ -3,16 +3,39 @@
 	<head>
 		<title>Farm Tab</title>
 		
-		<link href="style.css" rel="stylesheet" type="text/css" />
-		<link href='http://fonts.googleapis.com/css?family=Oswald' rel='stylesheet' type='text/css'>
+		<link href="http://farmtab.com/style.css" rel="stylesheet" type="text/css" />
+		<link href="http://farmtab.com/google-buttons.css" rel="stylesheet" type="text/css" />
+		<link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>		
 		
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+		
+		<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+				
+		<script type="text/javascript" >
+			google.load("jquery", "1.7.1");
+		</script>
 		
 		<script type="text/javascript">
 		
-			$(document).ready(function() {		
+			var fadeTime = 2000;
+			var delayTime = 3000;
+			
+			var imgCount = 1;
+			
+			$(document).ready(function() {
+				$(<?= '"#' . $_GET['page'] . '-nav"' ?>).attr('class', 'selected');
 				
-				
+				//setInterval(crossFade(),5000);
+				crossFade();
+				//setInterval(function(){alert("Hello")},1000);
+			})
+			
+			function crossFade(){
+				$('#header-image').delay(fadeTime, function(){$(this).attr('src', "img/banner/" + imgCount + ".jpg")});
+				if(imgCount<2) imgCount ++;
+				else imgCount = 0;
+				console.log(imgCount);
+				$('#header-imageB').fadeIn(fadeTime, function(){$(this).hide().attr('src', "img/banner/" + imgCount + ".jpg")});
+				//setInterval(crossFade(),delayTime+fadeTime);
 			}
 			
 		</script>
@@ -37,27 +60,20 @@
 	<body>
 	
 		<div id="wrap">
-	
-		<div id="header">
-			
-			<div id="logo"><img src="img/farmtab_logo.png" ></div>
-			
-			<nav id="account">
-				<a href="#login">Login</a> | 
-				<a href="#signup">Signup</a>
-			</nav>
-			
+
+				
 			<div id="banner">
-				<img id="logo" src="img/banner.png"/>
-				<img id="head-image" src="img/market01.jpg"/>
-			</div>
+				<img id="header-image" src="http://farmtab.com/img/banner/0.jpg"/>
+				<img id="header-imageB" src="http://farmtab.com/img/banner/1.jpg"/>
+				<a href="?page=home"><img id="logo" src="http://farmtab.com/img/logo.png"/></a>
+				
+				<div id="main-nav">
+					<a id="shoppers-nav" href="?page=shoppers" >For Shoppers</a>
+					<a id="farmers-nav" href="?page=farmers" >For Farmers</a>
+					<a id="contact-nav" href="?page=contact" >Contact</a>
+				</div>	
+				
+				
+			</div> <!-- END banner -->
 			
-			<nav id="main">
-				<a href="http://farmtab.com">Home</a>
-				<a href="shoppers.php">For Shoppers</a>
-				<a href="farmers.php">For Farmers</a>
-				<a href="locations.php">Locations</a>
-				<a href="contact.php">Contact</a>
-			</nav>
-		
-		</div> <!-- END header -->
+				

@@ -54,125 +54,136 @@ table {
 
 body{
 	text-align: center;
+	font-family: 'Open Sans';
+	font-size: 11pt;
+	line-height: 140%;
 
 }
 
 #wrap{
-	width: 960px;
+	width: 800px;
 	margin: 20px auto;
 	text-align: left;
 
 }
 
-#header{
-}
-
-#top-nav{
-	text-align: right;
-	padding: 5px 5px;
-	font-family: Oswald;
-		color: gray;
-	
-}
-
-#top-nav a{
-	color: gray;
-	
-}
-
-#top-nav a:hover{
-	color: black;
-}
-
-
 #banner{
 	position: relative;
-	
+	height: 330px;
 }
-
 
 #header-image{
-	position: relative;
-
+	position: absolute;
+	border-top-left-radius:		10px;
+	border-top-right-radius:	10px;
+	display: inline;
 }
+
+#header-imageB{
+	position: absolute;
+	border-top-left-radius:		10px;
+	border-top-right-radius:	10px;
+	display:none;
+}
+
 
 #logo{
 	position: absolute;
-	top: 5px;
-	left: -25;
+	top: 10px;
+	left: -31;
 }
 
-#about-nav{
-	font: bold 14pt Oswald;
-	color: #333
+#main-nav{
+	width: 780px;
+	background: rgba(255,255,255, 0.7);
+	padding: 11px 10px;
+	position: absolute;
+	bottom: 0px;
 	
 }
 
-#about a{
-	background: none;
-	text-transform: capitalize;
-	padding: 20px 15px;
-	display: inline-block;
-
+.selected{
+	background: white;
 }
 
-#about a:hover{
-	background: #aaa;
-	
+#main-nav a{
+	font-weight: bold;
+	display: inline;
+	padding: 10px;
+	letter-spacing: .03em;
+	text-transform: uppercase;
+	font-size: 14pt;
+}
+
+#main-nav a:hover{
+	color: #E24F26;
 }
 
 #content{
+	margin: 20px 10px;
+	float: left;
+	width: 575px;
+
+}
 
 
+#side{
+	margin: 20px 0;
+	float: right;
+	clear: right;
 }
 
 #footer{
-	font: 10pt Oswald;
+	display: block;
+	clear: both;
+	font-size: 10pt;
 	text-align: center;
 }
 
-.tab {
-	display: none;
-}
-
-
-nav{
-	background: gray;
-	clear: both;
-}
-
-nav a{
-	background: #333;
+#features div{
+	width: 160px;
+	height: 160px;
 	padding: 10px;
-	text-decoration: none;
-	color: white;
-	display: inline-block;
+	background: #ddd;
+	display: block;
+	float: left;
+	margin-right: 10px;
+	margin-top: 20px;
+	text-align: center;
+	border-top-left-radius:		10px;
+	border-top-right-radius:	10px;
+	border-bottom-left-radius:	10px;
+	border-bottom-right-radius:	10px;
+	font-weight: 700;
 }
 
-nav a:hover{
-	background: #aaa;
-	color: black;
+#features img {
+	padding-bottom: 15px;	
 }
 
-nav a.selected{
-	background: #ccc;
-	color: black;
-}
+
+
 
 
 /* Fonts */
 
 p{
-	font: italic 10pt Georgia, serif;
-	line-height: 140%;
+	padding-bottom: 20px;
 }
 
 h1, h2, h3, h4, h5, h6{
-	font-family: Oswald;
-	font-weight: bold;
+	font-weight: 700;
+	padding-bottom: 5px;
 }
 
 h1{
-	font: 14pt Oswald;
+	font-size: 14pt;
 
+}
+
+ul{
+	padding: 0 0 20px 20px;
+	list-style:disc;
+	
+	
 }

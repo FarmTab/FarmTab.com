@@ -50,8 +50,6 @@
     }
 
     public function setup_x_tab() {
-      
-      echo "why are you setting up an xtab?";
 
       $farmId = $_SESSION['farm']->id;
 
