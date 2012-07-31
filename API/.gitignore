@@ -10,6 +10,9 @@
 # Ignore database file
 /config/database.yml
 
+#Ignore installed Gems
+/Gemfile.lock
+
 # Ignore the default SQLite database.
 /db/*.sqlite3
 
